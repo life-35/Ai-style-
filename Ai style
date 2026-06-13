@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sabhi AI Tools - Ek Jagah</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
+  .hero { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2.5rem 1.5rem; text-align: center; }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .hero p { font-size: 1rem; opacity: 0.85; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+  .search-bar { margin: 1.5rem 0 1rem; }
+  .search-bar input { width: 100%; padding: 12px 16px; font-size: 15px; border: 1px solid #ddd; border-radius: 10px; background: white; outline: none; }
+  .search-bar input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+  .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab { padding: 7px 16px; font-size: 13px; border: 1px solid #ddd; border-radius: 20px; cursor: pointer; background: white; color: #555; transition: all 0.2s; }
+  .tab:hover { border-color: #667eea; color: #667eea; }
+  .tab.active { background: #667eea; color: white; border-color: #667eea; }
+  .section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+  .card { background: white; border: 1px solid #eee; border-radius: 14px; padding: 1.1rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: block; color: inherit; }
+  .card:hover { border-color: #667eea; box-shadow: 0 4px 16px rgba(102,126,234,0.12); transform: translateY(-2px); }
+  .card-icon { font-size: 28px; margin-bottom: 10px; }
+  .card-name { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; }
+  .card-desc { font-size: 12px; color: #777; line-height: 1.45; margin-bottom: 10px; }
+  .badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+  .badge-free { background: #e8f5e9; color: #2e7d32; }
+  .badge-paid { background: #fff3e0; color: #e65100; }
+  .badge-freemium { background: #e3f2fd; color: #1565c0; }
+  .card.hidden { display: none; }
+  footer { text-align: center; padding: 2rem; color: #aaa; font-size: 13px; margin-top: 2rem; border-top: 1px solid #eee; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🤖 Sabhi AI Tools</h1>
+  <p>Duniya ke best AI websites — ek jagah par</p>
+</div>
+
+<div class="container">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Search karo... jaise image, video, free..." oninput="filterCards()" />
+  </div>
+
+  <div class="filter-tabs">
+    <div class="tab active" onclick="setTab(this, 'all')">🌐 Sab</div>
+    <div class="tab" onclick="setTab(this, 'chat')">💬 Chat AI</div>
+    <div class="tab" onclick="setTab(this, 'image')">🖼️ Image</div>
+    <div class="tab" onclick="setTab(this, 'video')">🎬 Video</div>
+    <div class="tab" onclick="setTab(this, 'code')">💻 Code</div>
+    <div class="tab" onclick="setTab(this, 'audio')">🎵 Audio</div>
+    <div class="tab" onclick="setTab(this, 'search')">🔍 Search</div>
+  </div>
+
+  <div id="cardsContainer"></div>
+</div>
+
+<footer>
+  Made with ❤️ | Sabhi AI Tools Directory
+</footer>
+
+<script>
+const tools = [
+  { name: "Claude", desc: "Anthropic ka smart AI assistant", icon: "🧠", cat: "chat", price: "freemium", url: "https://claude.ai" },
+  { name: "ChatGPT", desc: "OpenAI ka popular chatbot", icon: "💬", cat: "chat", price: "freemium", url: "https://chat.openai.com" },
+  { name: "Gemini", desc: "Google ka AI assistant", icon: "✨", cat: "chat", price: "freemium", url: "https://gemini.google.com" },
+  { name: "Copilot", desc: "Microsoft ka AI assistant", icon: "🪟", cat: "chat", price: "free", url: "https://copilot.microsoft.com" },
+  { name: "Grok", desc: "xAI (Elon Musk) ka chatbot", icon: "⚡", cat: "chat", price: "freemium", url: "https://grok.com" },
+  { name: "Meta AI", desc: "Meta ka free AI assistant", icon: "🔵", cat: "chat", price: "free", url: "https://meta.ai" },
+  { name: "Perplexity", desc: "AI-powered search engine", icon: "🔎", cat: "search", price: "freemium", url: "https://perplexity.ai" },
+  { name: "You.com", desc: "AI search + chat combo", icon: "🌐", cat: "search", price: "freemium", url: "https://you.com" },
+  { name: "Midjourney", desc: "Best image generation AI", icon: "🎨", cat: "image", price: "paid", url: "https://midjourney.com" },
+  { name: "DALL·E 3", desc: "OpenAI ka image generator", icon: "🖼️", cat: "image", price: "freemium", url: "https://openai.com/dall-e-3" },
+  { name: "Stable Diffusion", desc: "Open source image AI", icon: "🌊", cat: "image", price: "free", url: "https://stability.ai" },
+  { name: "Adobe Firefly", desc: "Adobe ka creative AI", icon: "🔥", cat: "image", price: "freemium", url: "https://firefly.adobe.com" },
+  { name: "Ideogram", desc: "Text + image generation", icon: "✏️", cat: "image", price: "freemium", url: "https://ideogram.ai" },
+  { name: "Flux AI", desc: "High quality image AI", icon: "💫", cat: "image", price: "freemium", url: "https://flux1.ai" },
+  { name: "Runway ML", desc: "AI video generation tool", icon: "🎬", cat: "video", price: "freemium", url: "https://runwayml.com" },
+  { name: "Pika Labs", desc: "Free AI video creator", icon: "▶️", cat: "video", price: "freemium", url: "https://pika.art" },
+  { name: "Kling AI", desc: "Video generation AI", icon: "📹", cat: "video", price: "freemium", url: "https://klingai.com" },
+  { name: "Sora", desc: "OpenAI ka video AI", icon: "🎥", cat: "video", price: "paid", url: "https://sora.com" },
+  { name: "Luma AI", desc: "Dream Machine video AI", icon: "🌙", cat: "video", price: "freemium", url: "https://lumalabs.ai" },
+  { name: "Hailuo AI", desc: "Free video generation", icon: "🎞️", cat: "video", price: "freemium", url: "https://hailuoai.com" },
+  { name: "GitHub Copilot", desc: "Code likhne ka AI assistant", icon: "🐙", cat: "code", price: "freemium", url: "https://github.com/features/copilot" },
+  { name: "Cursor", desc: "AI-powered code editor", icon: "⌨️", cat: "code", price: "freemium", url: "https://cursor.sh" },
+  { name: "Replit AI", desc: "Browser mein code + AI", icon: "💻", cat: "code", price: "freemium", url: "https://replit.com" },
+  { name: "v0 by Vercel", desc: "UI banane ka AI tool", icon: "🖥️", cat: "code", price: "freemium", url: "https://v0.dev" },
+  { name: "Bolt.new", desc: "Full app banao AI se", icon: "⚡", cat: "code", price: "freemium", url: "https://bolt.new" },
+  { name: "ElevenLabs", desc: "AI voice generator", icon: "🎙️", cat: "audio", price: "freemium", url: "https://elevenlabs.io" },
+  { name: "Suno AI", desc: "AI music creator", icon: "🎵", cat: "audio", price: "freemium", url: "https://suno.com" },
+  { name: "Udio", desc: "AI se songs banao", icon: "🎧", cat: "audio", price: "freemium", url: "https://udio.com" },
+  { name: "Murf AI", desc: "Text to speech AI", icon: "🔊", cat: "audio", price: "freemium", url: "https://murf.ai" },
+];
+
+let activeTab = 'all';
+
+function setTab(el, cat) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  activeTab = cat;
+  filterCards();
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.card').forEach(card => {
+    const matchCat = activeTab === 'all' || card.dataset.cat === activeTab;
+    const matchQ = !q || card.dataset.name.includes(q) || card.dataset.desc.includes(q) || card.dataset.cat.includes(q);
+    card.classList.toggle('hidden', !(matchCat && matchQ));
+  });
+}
+
+function renderCards() {
+  const cats = {
+    chat: { label: "💬 Chat AI", tools: [] },
+    search: { label: "🔍 Search AI", tools: [] },
+    image: { label: "🖼️ Image AI", tools: [] },
+    video: { label: "🎬 Video AI", tools: [] },
+    code: { label: "💻 Code AI", tools: [] },
+    audio: { label: "🎵 Audio & Music AI", tools: [] },
+  };
+  tools.forEach(t => cats[t.cat] && cats[t.cat].tools.push(t));
+
+  const container = document.getElementById('cardsContainer');
+  Object.entries(cats).forEach(([cat, { label, tools: catTools }]) => {
+    const section = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = label;
+    section.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    catTools.forEach(t => {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = t.url;
+      card.target = '_blank';
+      card.dataset.cat = t.cat;
+      card.dataset.name = t.name.toLowerCase();
+      card.dataset.desc = t.desc.toLowerCase();
+      const badgeClass = t.price === 'free' ? 'badge-free' : t.price === 'paid' ? 'badge-paid' : 'badge-freemium';
+      const badgeText = t.price === 'free' ? '✅ Free' : t.price === 'paid' ? '💳 Paid' : '🔵 Free+';
+      card.innerHTML = `
+        <div class="card-icon">${t.icon}</div>
+        <div class="card-name">${t.name}</div>
+        <div class="card-desc">${t.desc}</div>
+        <span class="badge ${badgeClass}">${badgeText}</span>
+      `;
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+
+
+
+
+
+
+renderCards();
+</script>
+</body>
+</html>
